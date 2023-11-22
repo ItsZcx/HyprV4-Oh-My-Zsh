@@ -7,69 +7,69 @@
 # This is a quick and dirty script there are some error checking
 # IMPORTANT - This script is meant to run on a clean fresh Arch install on physical hardware
 
-# Define the software that would be inbstalled 
+# Define the software that would be inbstalled
 #Need some prep work
 prep_stage=(
-    qt5-wayland 
+    qt5-wayland
     qt5ct
-    qt6-wayland 
+    qt6-wayland
     qt6ct
     qt5-svg
     qt5-quickcontrols2
     qt5-graphicaleffects
-    gtk3 
-    polkit-gnome 
-    pipewire 
-    wireplumber 
-    jq 
-    wl-clipboard 
-    cliphist 
-    python-requests 
+    gtk3
+    polkit-gnome
+    pipewire
+    wireplumber
+    jq
+    wl-clipboard
+    cliphist
+    python-requests
     pacman-contrib
 )
 
 #software for nvidia GPU only
 nvidia_stage=(
-    linux-headers 
-    nvidia-dkms 
-    nvidia-settings 
-    libva 
+    linux-headers
+    nvidia-dkms
+    nvidia-settings
+    libva
     libva-nvidia-driver-git
 )
 
 #the main packages
 install_stage=(
-    kitty 
-    mako 
+    kitty
+    mako
     waybar
-    swww 
-    swaylock-effects 
-    wofi 
-    wlogout 
-    xdg-desktop-portal-hyprland 
-    swappy 
-    grim 
-    slurp 
-    thunar 
+    swww
+    swaylock-effects
+    wofi
+    wlogout
+    xdg-desktop-portal-hyprland
+    swappy
+    grim
+    slurp
+    thunar
     btop
-    firefox
+    brave-bin
     thunderbird
     mpv
-    pamixer 
-    pavucontrol 
-    brightnessctl 
-    bluez 
-    bluez-utils 
-    blueman 
-    network-manager-applet 
-    gvfs 
-    thunar-archive-plugin 
+    pamixer
+    pavucontrol
+    brightnessctl
+    bluez
+    bluez-utils
+    blueman
+    network-manager-applet
+    gvfs
+    thunar-archive-plugin
     file-roller
-    starship 
-    papirus-icon-theme 
-    ttf-jetbrains-mono-nerd 
-    noto-fonts-emoji 
-    lxappearance 
+    zsh
+    papirus-icon-theme
+    ttf-jetbrains-mono-nerd
+    noto-fonts-emoji
+    lxappearance
     xfce4-settings
     nwg-look-bin
     sddm
@@ -172,9 +172,9 @@ if [[ $WIFI == "Y" || $WIFI == "y" ]]; then
     echo -en "$CNT - Restarting NetworkManager service, Please wait."
     sleep 2
     sudo systemctl restart NetworkManager &>> $INSTLOG
-    
+
     #wait for services to restore (looking at you DNS)
-    for i in {1..6} 
+    for i in {1..6}
     do
         echo -n "."
         sleep 1
@@ -185,7 +185,7 @@ if [[ $WIFI == "Y" || $WIFI == "y" ]]; then
 fi
 
 #### Check for package manager ####
-if [ ! -f /sbin/yay ]; then  
+if [ ! -f /sbin/yay ]; then
     echo -en "$CNT - Configuering yay."
     git clone https://aur.archlinux.org/yay.git &>> $INSTLOG
     cd yay
@@ -194,7 +194,7 @@ if [ ! -f /sbin/yay ]; then
     if [ -f /sbin/yay ]; then
         echo -e "\e[1A\e[K$COK - yay configured"
         cd ..
-        
+
         # update the yay database
         echo -en "$CNT - Updating yay."
         yay -Suy --noconfirm &>> $INSTLOG &
@@ -216,7 +216,7 @@ if [[ $INST == "Y" || $INST == "y" ]]; then
     # Prep Stage - Bunch of needed items
     echo -e "$CNT - Prep Stage - Installing needed components, this may take a while..."
     for SOFTWR in ${prep_stage[@]}; do
-        install_software $SOFTWR 
+        install_software $SOFTWR
     done
 
     # Setup Nvidia if it was found
@@ -225,7 +225,7 @@ if [[ $INST == "Y" || $INST == "y" ]]; then
         for SOFTWR in ${nvidia_stage[@]}; do
             install_software $SOFTWR
         done
-    
+
         # update config
         sudo sed -i 's/MODULES=()/MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' /etc/mkinitcpio.conf
         sudo mkinitcpio --config /etc/mkinitcpio.conf --generate /boot/initramfs-custom.img
@@ -247,7 +247,7 @@ if [[ $INST == "Y" || $INST == "y" ]]; then
     # Stage 1 - main components
     echo -e "$CNT - Installing main components, this may take a while..."
     for SOFTWR in ${install_stage[@]}; do
-        install_software $SOFTWR 
+        install_software $SOFTWR
     done
 
     # Start the bluetooth service
@@ -259,7 +259,7 @@ if [[ $INST == "Y" || $INST == "y" ]]; then
     echo -e "$CNT - Enabling the SDDM Service..."
     sudo systemctl enable sddm &>> $INSTLOG
     sleep 2
-    
+
     # Clean out other portals
     echo -e "$CNT - Cleaning out conflicting xdg portals..."
     yay -R --noconfirm xdg-desktop-portal-gnome xdg-desktop-portal-gtk &>> $INSTLOG
@@ -286,11 +286,11 @@ if [[ $CFG == "Y" || $CFG == "y" ]]; then
     fi
 
     # Setup each appliaction
-    # check for existing config folders and backup 
-    for DIR in hypr kitty mako swaylock waybar wlogout wofi 
-    do 
+    # check for existing config folders and backup
+    for DIR in hypr kitty mako swaylock waybar wlogout wofi
+    do
         DIRPATH=~/.config/$DIR
-        if [ -d "$DIRPATH" ]; then 
+        if [ -d "$DIRPATH" ]; then
             echo -e "$CAT - Config for $DIR located, backing up."
             mv $DIRPATH $DIRPATH-back &>> $INSTLOG
             echo -e "$COK - Backed up $DIR to $DIRPATH-back."
@@ -301,7 +301,7 @@ if [[ $CFG == "Y" || $CFG == "y" ]]; then
     done
 
     # link up the config files
-    echo -e "$CNT - Setting up the new config..." 
+    echo -e "$CNT - Setting up the new config..."
     cp ~/.config/HyprV/hypr/* ~/.config/hypr/
     ln -sf ~/.config/HyprV/kitty/kitty.conf ~/.config/kitty/kitty.conf
     ln -sf ~/.config/HyprV/mako/conf/config-dark ~/.config/mako/config
@@ -330,8 +330,8 @@ if [[ $CFG == "Y" || $CFG == "y" ]]; then
     else
         echo -e "$CWR - $WLDIR NOT found, creating..."
         sudo mkdir $WLDIR
-    fi 
-    
+    fi
+
     # stage the .desktop file
     sudo cp Extras/hyprland.desktop /usr/share/wayland-sessions/
 
@@ -343,15 +343,19 @@ if [[ $CFG == "Y" || $CFG == "y" ]]; then
     cp -f ~/.config/HyprV/backgrounds/v4-background-dark.jpg /usr/share/sddm/themes/sdt/wallpaper.jpg
 fi
 
-### Install the starship shell ###
-read -rep $'[\e[1;33mACTION\e[0m] - Would you like to activate the starship shell? (y,n) ' STAR
-if [[ $STAR == "Y" || $STAR == "y" ]]; then
-    # install the starship shell
+### Install the zsh - OhMyZsh shell ###
+read -rep $'[\e[1;33mACTION\e[0m] - Would you like to activate the zsh - OhMyZsh shell? (y,n) ' ZSH
+if [[ $ZSH == "Y" || $ZSH == "y" ]]; then
+    # install the zsh shell
     echo -e "$CNT - Hansen Crusher, Engage!"
     echo -e "$CNT - Updating .bashrc..."
-    echo -e '\neval "$(starship init bash)"' >> ~/.bashrc
-    echo -e "$CNT - copying starship config file to ~/.config ..."
-    cp Extras/starship.toml ~/.config/
+    echo -e '\neval zsh' >> ~/.bashrc
+    echo -e "Starting OhMyZsh installation, CHANGE DEFAULT SHELL TO ZSH"
+    echo -e "\nexport LS_COLORS='ow=1;34:di=1;34:tw=1;34:st=1;34:'" >> ~/.zshrc
+    echo -e "\npacman='sudo pacman'" >> ~/.zshrc
+    echo -e "\nalias la='ls -a'" >> ~/.zshrc
+    echo -e "\nalias python='python3'" >> ~/.zshrc
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 fi
 
 ### Install software for Asus ROG laptops ###
@@ -384,9 +388,21 @@ if [[ $ROG == "Y" || $ROG == "y" ]]; then
     echo -e "\nsource = ~/.config/hypr/rog-g15-strix-2021-binds.conf" >> ~/.config/hypr/hyprland.conf
 fi
 
+### Pre install custom config ###
+read -rep $'[\e[1;33mACTION\e[0m] - Do you want to do the post install CUSTOM configuration? (y,n) ' TMP
+if [[ $TMP == "Y" || $TMP == "y" ]]; then
+    sudo pacman -S man-db man-pages base-devel
+    sudo pacman -S gnu-free-fonts noto-fonts ttf-jetbrains-mono
+    sudo pacman -S xdg-user-dirs
+    xdg-user-dirs-update
+    echo -e "$CAT - Since we attempted to setup an Nvidia GPU the script will now end and you should reboot.
+    Please type 'reboot' at the prompt and hit Enter when ready."
+    exit
+fi
+
 ### Script is done ###
 echo -e "$CNT - Script had completed!"
-if [[ "$ISNVIDIA" == true ]]; then 
+if [[ "$ISNVIDIA" == true ]]; then
     echo -e "$CAT - Since we attempted to setup an Nvidia GPU the script will now end and you should reboot.
     Please type 'reboot' at the prompt and hit Enter when ready."
     exit
