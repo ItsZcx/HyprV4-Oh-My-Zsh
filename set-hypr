@@ -7,7 +7,7 @@
 # This is a quick and dirty script there are some error checking
 # IMPORTANT - This script is meant to run on a clean fresh Arch install on physical hardware
 
-# Define the software that would be inbstalled
+# Define the software that would be installed
 #Need some prep work
 prep_stage=(
     qt5-wayland
@@ -343,19 +343,19 @@ if [[ $CFG == "Y" || $CFG == "y" ]]; then
     cp -f ~/.config/HyprV/backgrounds/v4-background-dark.jpg /usr/share/sddm/themes/sdt/wallpaper.jpg
 fi
 
-### Install the zsh - OhMyZsh shell ###
-read -rep $'[\e[1;33mACTION\e[0m] - Would you like to activate the zsh - OhMyZsh shell? (y,n) ' ZSH
+### Install the zsh - Oh-My-Zsh shell ###
+read -rep $'[\e[1;33mACTION\e[0m] - Would you like to activate the zsh - Oh-My-Zsh shell? (y,n) ' ZSH
 if [[ $ZSH == "Y" || $ZSH == "y" ]]; then
-    # install the zsh shell
-    echo -e "$CNT - Hansen Crusher, Engage!"
-    echo -e "$CNT - Updating .bashrc..."
-    echo -e '\neval zsh' >> ~/.bashrc
-    echo -e "Starting OhMyZsh installation, CHANGE DEFAULT SHELL TO ZSH"
+    # Install the Oh-My-Zsh framework
+    echo -e "Starting Oh-My-Zsh framework installation"
+    echo -e "exit" > ~/exit
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" < ~/exit
+    rm ~/exit
     echo -e "\nexport LS_COLORS='ow=1;34:di=1;34:tw=1;34:st=1;34:'" >> ~/.zshrc
-    echo -e "\npacman='sudo pacman'" >> ~/.zshrc
-    echo -e "\nalias la='ls -a'" >> ~/.zshrc
-    echo -e "\nalias python='python3'" >> ~/.zshrc
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    echo -e "pacman='sudo pacman'" >> ~/.zshrc
+    echo -e "alias la='ls -a'" >> ~/.zshrc
+    echo -e "alias python='python3'" >> ~/.zshrc
+    chsh -s $(which zsh)
 fi
 
 ### Install software for Asus ROG laptops ###
@@ -388,16 +388,13 @@ if [[ $ROG == "Y" || $ROG == "y" ]]; then
     echo -e "\nsource = ~/.config/hypr/rog-g15-strix-2021-binds.conf" >> ~/.config/hypr/hyprland.conf
 fi
 
-### Pre install custom config ###
+### Post install custom config ###
 read -rep $'[\e[1;33mACTION\e[0m] - Do you want to do the post install CUSTOM configuration? (y,n) ' TMP
 if [[ $TMP == "Y" || $TMP == "y" ]]; then
-    sudo pacman -S man-db man-pages base-devel
-    sudo pacman -S gnu-free-fonts noto-fonts ttf-jetbrains-mono
-    sudo pacman -S xdg-user-dirs
+    sudo pacman -S man-db man-pages base-devel gnu-free-fonts noto-fonts ttf-jetbrains-mono xdg-user-dirs
+    cd
     xdg-user-dirs-update
-    echo -e "$CAT - Since we attempted to setup an Nvidia GPU the script will now end and you should reboot.
-    Please type 'reboot' at the prompt and hit Enter when ready."
-    exit
+    cd -
 fi
 
 ### Script is done ###
