@@ -52,6 +52,7 @@ install_stage=(
     slurp
     thunar
     btop
+    firefox
     brave-bin
     thunderbird
     mpv
